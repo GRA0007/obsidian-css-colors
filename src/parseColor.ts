@@ -2,6 +2,8 @@ import { type Color, parse, parseHex } from 'culori'
 import { getPaletteClass } from './palettes'
 
 export const parseColor = (text: string, paletteClasses: string[]) => {
+  text = text.trim()
+
   // If color is surrounded with square brackets, the name should be hidden
   let isNameHidden = false
   if (text.startsWith('[') && text.endsWith(']')) {
@@ -25,7 +27,7 @@ export const parseColor = (text: string, paletteClasses: string[]) => {
 
   if (!color) {
     try {
-      color = parse(text)
+      color = parse(text.toLocaleLowerCase())
       if (color === undefined) return
       // Ignore hex colors that don't start with a hash
       if (color.mode === 'rgb' && parseHex(text) && text.charAt(0) !== '#')
