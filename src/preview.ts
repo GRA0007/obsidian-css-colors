@@ -8,7 +8,7 @@ export const inlayPostProcessor =
     const paletteClasses = settings.palettesEnabled ? getPaletteClasses() : []
 
     for (const code of el.findAll('code')) {
-      const res = parseColor(code.innerText.trim(), paletteClasses)
+      const res = parseColor(code.innerText, paletteClasses)
       if (!res) continue
       const { text, color, isNameHidden } = res
 
