@@ -1,5 +1,11 @@
 # Changelog
 
+## \[1.4.1]
+
+### Bug Fixes
+
+- [`4394998`](https://github.com/GRA0007/obsidian-css-inlay-colors/commit/439499882f58b3cc3e6359e20b6c31978b9bfa13) Fix color strings with uppercase letters not being recognised
+
 ## \[1.4.0]
 
 ### New Features
