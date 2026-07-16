@@ -1,4 +1,10 @@
-import { type App, PluginSettingTab, Setting } from 'obsidian'
+import {
+  type App,
+  PluginSettingTab,
+  requireApiVersion,
+  Setting,
+  type SettingDefinitionItem,
+} from 'obsidian'
 import type CssColorsPlugin from './main'
 import { downloadPredefinedPalettes } from './palettes'
 
@@ -24,6 +30,140 @@ export class CssColorsSettingsTab extends PluginSettingTab {
   constructor(app: App, plugin: CssColorsPlugin) {
     super(app, plugin)
     this.plugin = plugin
+  }
+
+  getSettingDefinitions(): SettingDefinitionItem<
+    keyof CssColorsPluginSettings
+  >[] {
+    if (!requireApiVersion('1.13.0')) return []
+
+    return [
+      {
+        name: 'Show in live preview mode',
+        desc: 'Enable color inlays in the live preview (requires reload).',
+        control: { type: 'toggle', key: 'showInLiveEditor' },
+      },
+      {
+        name: 'Enable the color picker',
+        desc: createFragment((desc) => {
+          desc.appendText(
+            'Allows you to edit a color by clicking on the inlay.',
+          )
+          desc.createDiv({
+            text: 'Opacity and colors outside of the sRGB color space are not supported.',
+            cls: 'mod-warning',
+          })
+        }),
+        control: { type: 'toggle', key: 'colorPickerEnabled' },
+      },
+      {
+        name: 'Hide all color names',
+        desc: 'Hides the inline code block in live preview and reading mode for all colors so only the color inlay is visible. You can also do this on a case-by-case basis by surrounding the color with square brackets.',
+        control: { type: 'toggle', key: 'hideNames' },
+      },
+      {
+        name: 'Copy on click',
+        desc: 'Allows clicking on a color in reading mode to copy it to your clipboard.',
+        control: { type: 'toggle', key: 'copyOnClick' },
+      },
+      {
+        type: 'group',
+        heading: 'Custom Palettes',
+        items: [
+          {
+            name: 'Enable palette support',
+            desc: createFragment((desc) => {
+              desc.appendText(
+                'Enable custom color palette support. This will generate classes for every inline code block surrounded in parentheses so they can be targeted with a CSS snippet file.',
+              )
+              desc.createEl('br')
+              desc.createEl('a', {
+                text: 'Learn more',
+                href: 'https://github.com/GRA0007/obsidian-css-inlay-colors?tab=readme-ov-file#custom-palettes',
+              })
+            }),
+            control: { type: 'toggle', key: 'palettesEnabled' },
+          },
+          {
+            name: 'Download predefined palettes',
+            desc: createFragment((desc) => {
+              desc.appendText('You can download a ')
+              desc.createEl('a', {
+                text: 'snippet file',
+                href: 'https://github.com/GRA0007/obsidian-css-inlay-colors/blob/main/palettes.css',
+              })
+              desc.appendText(
+                ' with some predefined palettes. It comes with the following:',
+              )
+            }),
+            render: (setting) => {
+              setting
+                .addButton((button) => {
+                  button
+                    .setButtonText('Download')
+                    .onClick(() => downloadPredefinedPalettes(this.app))
+                })
+                .infoEl.createDiv({ cls: 'setting-item-description' })
+                .createEl('ul', {
+                  text: createFragment((el) => {
+                    el.createEl('li', {
+                      text: createFragment((li) => {
+                        li.createEl('strong', { text: 'AutoCAD Color Index' })
+                        li.createDiv({ text: 'Example: (aci 91)' })
+                      }),
+                    })
+                    el.createEl('li', {
+                      text: createFragment((li) => {
+                        li.createEl('strong', {
+                          text: 'Australian Color Standard (AS 2700)',
+                        })
+                        li.createDiv({ text: 'Example: (as N45)' })
+                      }),
+                    })
+                    el.createEl('li', {
+                      text: createFragment((li) => {
+                        li.createEl('strong', {
+                          text: 'British Standard Colors (BS 381, BS 4800)',
+                        })
+                        li.createDiv({
+                          text: 'Example: (bs 381 593) or (bs 14-E-51)',
+                        })
+                      }),
+                    })
+                    el.createEl('li', {
+                      text: createFragment((li) => {
+                        li.createEl('strong', {
+                          text: 'Federal Standard (FS 595C, ANA)',
+                        })
+                        li.createDiv({
+                          text: 'Example: (fs 11086) or (fs w3-ana-609)',
+                        })
+                      }),
+                    })
+                    el.createEl('li', {
+                      text: createFragment((li) => {
+                        li.createEl('strong', {
+                          text: 'RAL Colors (Classic, Design, Effect, Plastics)',
+                        })
+                        li.createDiv({
+                          text: 'Example: (ral 170 50 10) or (ral 6010)',
+                        })
+                      }),
+                    })
+                  }),
+                })
+            },
+          },
+        ],
+      },
+    ]
+  }
+
+  async setControlValue(key: string, value: unknown): Promise<void> {
+    if (!(key in this.plugin.settings)) return
+
+    Reflect.set(this.plugin.settings, key, value)
+    await this.plugin.saveSettings()
   }
 
   display(): void {

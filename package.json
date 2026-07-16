@@ -36,7 +36,7 @@
     "builtin-modules": "5.0.0",
     "covector": "^0.12.4",
     "esbuild": "0.27.1",
-    "obsidian": "latest",
+    "obsidian": "^1.13.1",
     "tslib": "2.8.1",
     "typescript": "5.9.3"
   },
